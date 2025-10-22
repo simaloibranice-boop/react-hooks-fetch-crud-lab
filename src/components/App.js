@@ -7,12 +7,12 @@ function App() {
   const [page, setPage] = useState("List");
   const [questions, setQuestions ] = useState([]);
 
-  useEffect(() => {
-    fetch("http://localhost:4000/questions")
-    .then((res) => res.json())
-    .then((data) => setQuestions(data))
-    .catch((err) => console.error("Error fetching questions:", err));
-  }, []);
+   useEffect(() => {
+  fetch("http://localhost:4000/questions")
+    .then((r) => r.json())
+    .then(setQuestions);
+}, []);
+
 
   return (
     <main>

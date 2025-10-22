@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function QuestionForm(props) {
+function QuestionForm({ setQuestions }) {
   const [formData, setFormData] = useState({
     prompt: "",
     answer1: "",
@@ -19,39 +19,38 @@ function QuestionForm(props) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    
-      const newQuestion = {
-        prompt: formData.prompt,
-        answers: [
-          formData.answer1,
-          formData.answer2,
-          formData.answer3,
-          formData.answer4,
-        ],
-        correctIndex: parseInt(formData.correctIndex),
-      };
-  
-      fetch("http://localhost:4000/questions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newQuestion),
+
+    const newQuestion = {
+      prompt: formData.prompt,
+      answers: [
+        formData.answer1,
+        formData.answer2,
+        formData.answer3,
+        formData.answer4,
+      ],
+      correctIndex: parseInt(formData.correctIndex),
+    };
+
+    fetch("http://localhost:4000/questions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newQuestion),
+    })
+      .then((res) => res.json())
+      .then((addedQuestion) => {
+        
+        setQuestions((prevQuestions) => [...prevQuestions, addedQuestion]);      
+        setFormData({
+          prompt: "",
+          answer1: "",
+          answer2: "",
+          answer3: "",
+          answer4: "",
+          correctIndex: 0,
+        });
       })
-        .then((res) => res.json())
-        .then((data) => {
-          setQuestions((prev) => [...prev, data]);
-          setFormData({
-            prompt: "",
-            answer1: "",
-            answer2: "",
-            answer3: "",
-            answer4: "",
-            correctIndex: 0,
-          });
-        })
-        .catch((err) => console.error("Error adding question:", err));
-    }
+      .catch((err) => console.error("Error adding question:", err));
+  }
 
   return (
     <section>

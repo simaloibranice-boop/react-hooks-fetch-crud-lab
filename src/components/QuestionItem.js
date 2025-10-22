@@ -1,25 +1,40 @@
 import React from "react";
 
-function QuestionItem({ question, onDeleteQuestion, onUpdateQuestion }) {
+function QuestionItem({ question, setQuestions }) {
   const { id, prompt, answers, correctIndex } = question;
 
-  function handleDeleteClick() {
-    fetch(`http://localhost:4000/questions/${id}`, { method: "DELETE" })
-      .then(() => onDeleteQuestion(id))
+  function handleDelete() {
+    fetch(`http://localhost:4000/questions/${id}`, {
+      method: "DELETE",
+    })
+      .then(() =>
+        setQuestions((prev) => prev.filter((q) => q.id !== id))
+      )
       .catch((err) => console.error("Error deleting:", err));
   }
 
   function handleCorrectAnswerChange(e) {
-    const newIndex = parseInt(e.target.value, 10);
+    const newCorrectIndex = parseInt(e.target.value);
+
     fetch(`http://localhost:4000/questions/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ correctIndex: newIndex }),
+      body: JSON.stringify({ correctIndex: newCorrectIndex }),
     })
-      .then((r) => r.json())
-      .then((updated) => onUpdateQuestion(updated))
+      .then((res) => res.json())
+      .then((updatedQ) =>
+        setQuestions((prev) =>
+          prev.map((q) => (q.id === id ? updatedQ : q))
+        )
+      )
       .catch((err) => console.error("Error updating:", err));
   }
+
+  const options = answers.map((answer, index) => (
+    <option key={index} value={index}>
+      {answer}
+    </option>
+  ));
 
   return (
     <li>
@@ -27,15 +42,14 @@ function QuestionItem({ question, onDeleteQuestion, onUpdateQuestion }) {
       <h5>Prompt: {prompt}</h5>
       <label>
         Correct Answer:
-        <select value={correctIndex} onChange={handleCorrectAnswerChange}>
-          {answers.map((answer, index) => (
-            <option key={index} value={index}>
-              {answer}
-            </option>
-          ))}
+        <select
+          value={correctIndex}
+          onChange={handleCorrectAnswerChange}
+        >
+          {options}
         </select>
       </label>
-      <button onClick={handleDeleteClick}>Delete Question</button>
+      <button onClick={handleDelete}>Delete Question</button>
     </li>
   );
 }
